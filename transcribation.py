@@ -11,8 +11,8 @@ import soundfile
 import ssl
 from pydub import AudioSegment
 
-if os.path.isfile("output_graph_1.pbmm"):
-    model = deepspeech.Model('output_graph_1.pbmm')
+if os.path.isfile("output_graph.pbmm"):
+    model = deepspeech.Model('output_graph.pbmm')
 else:
     sys.exit('Нет обученной модели')
 
@@ -38,19 +38,6 @@ def convert_to_wav(type_of_file):
 
     os.remove("audio_for_stt." + type_of_file)
 
-# закрыть файл
-# 0,https://megapesni.net/download.php?id=225480,Sam Jason1,mp3
-
-'''
-file = open('id_file.csv')
-line = file.readlines()[0].split(',')  # список данных
-id_number = line[0]
-url = line[1]
-user_id = line[2]  # идентификатор пользователя
-extension = str(line[3])  # расширение
-link_to_download = line[4]
-print(link_to_download[:-1] + '/output.txt')
-file.close()'''
 
 with open('id_file.csv', "r", newline='') as f:
     reader = csv.reader(f)
@@ -64,8 +51,8 @@ line = r[row_count - 1][0].split(',')
 
 id_number = line[0]
 url = line[1]
-user_id = line[2]  # идентификатор пользователя
-extension = str(line[3])  # расширение
+user_id = line[2] 
+extension = str(line[3]) 
 link_to_download = line[4]
 
 f.close()
@@ -81,20 +68,13 @@ rate = w.getframerate()  # частота дискретизации
 
 if rate != 16000:
     w.close()
-    # os.system("sox " + '--info' + ' audio_for_stt.wav')
     os.rename("audio_for_stt.wav", "old.wav")
     os.system("sox " + '-v 0.95' + ' old.wav' + " -G -r 16000 -c 1 -b 16 " + 'audio_for_stt.wav')
-    # -v 0.95 перепроверить (должно решать проблему: sox WARN dither: dither clipped 1 samples; decrease volume?)
-    # потери?
-    # os.system("sox " + '--info' + ' audio_for_stt.wav')  # данные об итоговом wav файле
     os.remove("old.wav")
     w = wave.open('audio_for_stt.wav', 'r')
 
 frames = w.getnframes()
 buffer = w.readframes(frames)
-# print(rate)
-# print(model.sampleRate())  # частота дискретизации в выборках в секунду данных PCM
-# type(buffer)
 
 data16 = np.frombuffer(buffer, dtype=np.int16)
 text = model.stt(data16)  # перевод записи в текст
@@ -104,14 +84,6 @@ with open("output.txt", "w+") as f:  # запись id пользователя 
 f.close()
 link_to_download_n = link_to_download + '/output.txt'
 
-
-'''os.remove("audio_for_stt.wav")
-with open('id_file.csv', 'a') as fd:
-    fd.write(link_to_download_n)'''
-
-#fd = open('id_file.csv', 'a')
-#fd.write(link_to_download_n)
-#fd.close()
 
 with open('id_file.csv', "a", newline='\n') as csv_file:
     writer = csv.writer(csv_file, delimiter=',')
