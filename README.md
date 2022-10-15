@@ -1,1 +1,1 @@
-# api-flask-deepsheech
+API c использованием Flask для транскрибации речи в текст.
